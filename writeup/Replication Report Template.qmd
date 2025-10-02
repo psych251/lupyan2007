@@ -1,6 +1,6 @@
 ---
-title: "Replication of Study X by Sample & Sample (20xx, Psychological Science)"
-author: "Replication Author[s] (contact information)"
+title: "Replication of 'Language is not Just for Talking: Redundant Labels Facilitate Learning of Novel Categories' by Lupyan, Rakison, & McClelland (2007, Psychological Science)"
+author: "Caroline Kaicher (ckaicher@stanford.edu)"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 format:
   html:
@@ -13,7 +13,20 @@ format:
 ## Introduction
 
 [No abstract is needed.]  Each replication project will have a straightforward, no frills report of the study and results.  These reports will be publicly available as supplementary material for the aggregate report(s) of the project as a whole.  Also, to maximize project integrity, the intro and methods will be written and critiqued in advance of data collection.  Introductions can be just 1-2 paragraphs clarifying the main idea of the original study, the target finding for replication, and any other essential information.  It will NOT have a literature review -- that is in the original publication. You can write both the introduction and the methods in past tense.  
+### Justification
 
+I am interested in how labels help children and adults learn categories. Lupyan, Rakison, and McClelland (2007) contributes to this question by showing that labels help adults learn object categories (in this case, categories of aliens) faster than when they have no labels, or have other nonlinguistic cues. This paper is particularly compelling because the labels are "redundant", in other words they do not provide additional information to the participants about the category distinctions. Therefore, it is presumed that there is something "special" about having a label to associate category exemplars with in the category learning process. Thus, while words play an important role in category learning by pointing out useful category distinctions in the environment, they may be playing an even bigger role in facilitating the category learning process -- however, the exact nature and mechanism of this role is unknown.
+
+### Stimuli and Procedures
+
+Lupyan, Rakison, and McClelland (2007) consists of 2 experiments, and I will be replicating experiment 2. To conduct this experiment, I will need to recreate their category learning task. I will use PsychoPy, as this is the experiment-building software I am most familiar with, and host it online using Pavlovia. The task will have 4 conditions: No Label, Written Label, Auditory Label, and Location (nonlinguistic cue). The stimuli I will need are recordings of the auditory labels and the alien images they used in the original experiment. The images from the original study where created by Mike Tarr's lab (the YUFO stimulus set), and are publicly available on their website.
+
+The main challenge I anticipate for this study is finding the specific alien images the authors used in the two categories. Luckily, all the images they used are shown in Figure 1 of the paper, but there are a lot of images in the original stimulus set, so I will need to comb through them to find the exact ones. Other than that, the description of the category learning task seems clear and includes all the necessary details to recreate it.
+
+### Repo Link
+
+Repository: https://github.com/psych251/lupyan2007.git
+Original Paper: https://github.com/psych251/lupyan2007/blob/main/original_paper/lupyan-et-al-2007-language-is-not-just-for-talking-redundant-labels-facilitate-learning-of-novel-categories-2.pdf
 
 ## Methods
 
