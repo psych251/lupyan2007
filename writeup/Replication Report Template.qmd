@@ -39,11 +39,28 @@ Planned sample size and/or termination rule, sampling frame, known demographics 
 
 ### Materials
 
-All materials - can quote directly from original article - just put the text in quotations and note that this was followed precisely.  Or, quote directly and just point out exceptions to what was described in the original article.
+"The stimuli were a subset of the YUFO stimulus set (Gauthier, James, Curby, & Tarr, 2003). Items in one category (shown on the left in Fig. 1) had flatter bases and a subtle ridge on their ‘‘heads.’’ Items in the other category (shown on the right in Fig. 1) had more rounded bases and smoother heads...The stimuli were presented on a black background on a 17-in. computer screen and subtended 81 of visual angle. Responses were collected using a gamepad controller. For the [written] label condition, the categories were associated with the nonsense labels ‘‘leebish’’ and ‘‘grecious,’’ which were displayed in a white, 16point font."
+
+The alien images used in the replication are exactly the same as the original, and the same labels were used for the categories. However, since the replication is done online, the participants complete it on their personal computer. This means that the task could be presented on any screen size and visual angle. Also, the responses were collected using the participants' keyboards.
+
 
 ### Procedure	
 
-Can quote directly from original article - just put the text in quotations and note that this was followed precisely.  Or, quote directly and just point out exceptions to what was described in the original article.
+"Subjects were told to imagine that they were explorers on another planet and were learning about alien life forms. Their task was to determine which aliens they should approach and which they should move away from. On each training trial, 1 of the 16 aliens appeared in the center of the screen. After 500 ms, an outline of a character in a space suit (the "explorer") appeared in one of four positions—to the left of, to the right of, above, or below the alien. Subjects were instructed to respond with the appropriate direction key depending on the category of the alien. For instance, if the explorer appeared above the alien, they needed to press the "down" key to move toward the alien or the "up" key to move away; after the key press, the explorer moved toward or away from the alien, as indicated. Auditory feedback—a buzz for an incorrect response and a bell for a correct response—sounded 200 ms after the explorer stopped moving. In the [written] label condition, a printed label ("leebish" or "grecious") appeared to the right of the alien 300 ms after the feedback. After another 1,500 ms, the alien (and label, in the [written] label condition) disappeared from the screen, and a fixation cross marked the start of the next trial. The total trial duration and exposure to the stimulus were equal for the two conditions. The pairing of the labels with the categories (move away vs. move toward) and with the perceptual stimuli (left vs. right side of Fig. 1) was counterbalanced across subjects. Subjects in the label condition were told that previous visitors to the planet had found it useful to name the two kinds of aliens, and that they should pay careful attention to the labels. All subjects received the same number of categorization trials (nine blocks of 16 trials each) and had equal exposure to the stimuli. The only difference between the two conditions was whether or not a verbal label appeared after each response."
+
+This procedure is described for Experiment 1 of the study, where there are only 2 conditions: [written] label vs no label. Experiment 2 uses the same procedure, but adds the two other conditions: auditory label and location. Everything described in the procedure above was followed exactly, besides the fact that I did not use the same bell and buzz sounds, or astronaut character as used in the original. Here is where they discuss the additional procedural considerations for Experiment 2:
+
+"The materials and procedure were identical to those used in Experiment 1 with the following exceptions: In the auditory label condition, the written labels were replaced by recorded sound clips of a female saying "leebish" and "grecious." In the location condition, subjects were told that some aliens lived on one side of the planet, and others lived on the other side. On each trial, after the subject responded (approach/escape) and auditory feedback was given, the alien moved up or down to signal where it "lived." The motion started 300 ms after response feedback and lasted approximately 400 ms. The trial ended 1,300 ms after the alien stopped moving. Thus, the alien was visible for a longer total time in the location condition compared with the label conditions...To measure the degree to which subjects learned the association between stimuli and labels or locations, we included verification trials as part of the training procedure. Verification trials were presented after a random 10% of training trials. On each verification trial in the label conditions, one of the aliens appeared with a query asking: "Is this one leebish [grecious]? yes/no" (the label was randomly selected). On the verification trials in the location condition, the alien moved up or down, and subjects responded to the query, "Is this correct? yes/no"; subjects were allowed to repeat the motion numerous times before making their response. No feedback was provided for the verification trials."
+
+This was followed closely, with a few exceptions. First, I used a text-to-speech converter to get the auditory labels of "leebish" and "grecious" (in a female voice like the original). Second, the verification trials were done at the end of each block, rather than "after a random 10% of training trials." This was done due to limitations of PsychoPy -- specifically the set-up of loops during each block of trials, such that it is difficult to insert a new trial type within a block without it being repeated every iteration of the loop. Also, I do not think that this will affect the replication results because the verification trials are not used in the main analysis of interest, and with doing it this way, the participants only get one less verification trial that the original (9 rather than 10). The last exception is that in the verification trials for the location condition, I did not set it up so that participants can repeat the motion before making their response. I do not think this detracts from the participants' ability to make their choice because after the alien moves once, it remains in the location where it stopped moving, so it is clear to participants which direction the alien moved the whole time (because the alien always starts in the center of the screen).
+
+I have separate task versions set up for each condition, with counterbalancing of the labels and categories set up for each of them through Pavlovia.
+
+Auditory Label: https://run.pavlovia.org/ckaicher/lupyan_replication_1
+Written Label: https://run.pavlovia.org/ckaicher/lupyan_replication_2
+Location: https://run.pavlovia.org/ckaicher/lupyan_replication_3
+No Label: https://run.pavlovia.org/ckaicher/lupyan_replication_4
+
 
 ### Analysis Plan
 
@@ -73,21 +90,151 @@ You can comment this section out prior to final report with data collection.
 
 Data preparation following the analysis plan.
 	
-```{r include=F}
+```{r include=T}
 ### Data Preparation
 
 #### Load Relevant Libraries and Functions
+library("tidyverse")
+library("emmeans")
 
 #### Import data
+input_path <- "../data/Pilot A/raw_data"
+output_path <- "../data/Pilot A/processed_data"
+
+files <- list.files(path=input_path,
+                    pattern=".csv",
+                    all.files=FALSE,
+                    full.names=FALSE)
+
+#this is for making the condition names more concise during tidying
+condition_names <- tibble(experimentName = c("Category_Training_Label",
+                                      "Category_Training_LabelWritten",
+                                      "Category_Training_Location",
+                                      "Category_Training_NoLabel"),
+                          condition = c("Label_Auditory",
+                                        "Label_Written",
+                                        "Location",
+                                        "No_Label"))
 
 #### Data exclusion / filtering
 
+clean_data = function(dat) {
+  dat_clean <- dat %>% 
+    rename(participant = "Prolific ID") %>% 
+    mutate(counterbalance.group = counterbalance.group[1]) %>% 
+    select(participant,
+           counterbalance.group,
+           expName,
+           #block,
+           alien_stim,
+           category,
+           friendly,
+           approach,
+           key_resp.actual,
+           correct) %>% 
+    drop_na(alien_stim) %>% 
+    mutate(trial = 1:144) %>%
+    mutate(condition = filter(condition_names,
+                              expName[1] == experimentName)$condition)
+  
+  #during piloting, I realized the output files did not include the block number of each trial, so I am adding that info here -- however, I will fix that for the next pilot
+  
+  dat_clean <- mutate(dat_clean, block = c(rep(1, 16),
+                                           rep(2, 16),
+                                           rep(3, 16),
+                                           rep(4, 16),
+                                           rep(5, 16),
+                                           rep(6, 16),
+                                           rep(7, 16),
+                                           rep(8, 16),
+                                           rep(9, 16)))
+  
+  return (dat_clean)
+}
+
 #### Prepare data for analysis - create columns etc.
+
+df.dat_clean_all <- tibble(participant = c(),
+                           #block = c(),
+                           condition = c(),
+                           counterbalance.group = c(),
+                           alien_stim = c(),
+                           category = c(),
+                           friendly = c(),
+                           approach = c(),
+                           key_resp.actual = c(),
+                           correct = c())
+
+for (i in 1:length(files)) {
+  df.dat <- read_csv(paste0(input_path, "/", files[i]))
+  df.dat_clean <- clean_data(df.dat)
+  write.csv(df.dat_clean,
+            paste0(output_path, "/", files[i], "_processed.csv"),
+            row.names = FALSE)
+  df.dat_clean_all <- rbind(df.dat_clean, df.dat_clean_all)
+}
+
+df.dat_clean_all$condition <- factor(df.dat_clean_all$condition,
+                                     levels = c("No_Label",
+                                                "Location",
+                                                "Label_Written",
+                                                "Label_Auditory"))
+
+write.csv(df.dat_clean_all,
+          paste0(output_path, "/all_participants.csv"),
+          row.names = FALSE)
+
 ```
 
 ### Confirmatory analysis
 
 The analyses as specified in the analysis plan.  
+```{r include=T}
+acc.lm <- glm(correct ~ condition * block,
+              data = df.dat_clean_all)
+
+acc.av <- acc.lm %>% 
+  joint_tests()
+acc.av
+
+emm <- emmeans(acc.lm,
+               specs = ~ condition)
+
+contrast_results <- contrast(emm,
+                             list(auditory_vs_written = c(0, 0, -1, 1),
+                                  location_vs_nolabel = c(-1, 1, 0, 0)),
+                             adjust = "tukey")
+
+summary(contrast_results)
+
+#not really sure why the authors did these next two analyses
+
+#comparing pooled Auditory Label and Written Label data to pooled Location and No Label data in new anova
+df.pooled <- df.dat_clean_all %>% 
+  mutate(condition = ifelse(test = (df.dat_clean_all$condition == "Label_Auditory"|
+                                      df.dat_clean_all$condition == "Label_Written"),
+                            yes = "labels_pooled",
+                            no = "nonLabels_pooled"))
+
+acc.lm_pooled <- glm(correct ~ condition * block,
+                                 data = df.pooled)
+
+acc.av_pooled <- acc.lm_pooled %>%
+  joint_tests()
+acc.av_pooled
+
+#comparing just Written Label and Location conditions in new anova
+df.justWrittenAndLocation <- df.dat_clean_all %>% 
+  filter(condition == "Label_Written" | condition == "Location")
+
+acc.lm_WrittenAndLocation <- glm(correct ~ condition * block,
+                                 data = df.justWrittenAndLocation)
+
+acc.av_WrittenAndLocation <- acc.lm_WrittenAndLocation %>%
+  joint_tests()
+acc.av_WrittenAndLocation
+
+```
 
 *Side-by-side graph with original graph is ideal here*
 
