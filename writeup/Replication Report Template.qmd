@@ -25,17 +25,22 @@ The main challenge I anticipate for this study is finding the specific alien ima
 ### Repo Link
 
 Repository: https://github.com/psych251/lupyan2007.git
+
 Original Paper: https://github.com/psych251/lupyan2007/blob/main/original_paper/lupyan-et-al-2007-language-is-not-just-for-talking-redundant-labels-facilitate-learning-of-novel-categories-2.pdf
 
 ## Methods
 
 ### Power Analysis
 
+The authors reported a partial eta-squared effect size of 0.07 for the interaction between condition and block. This roughly translates to a partial cohen's f of 0.87. This is a very large effect size. 
+
 Original effect size, power analysis for samples to achieve 80%, 90%, 95% power to detect that effect size.  Considerations of feasibility for selecting planned sample size.
 
 ### Planned Sample
 
-Planned sample size and/or termination rule, sampling frame, known demographics if any, preselection rules if any.
+I plan to stop collecting data once I have 76 participants, 19 in each condition. The original study had 75 participants, and I adjusted it to 76 to have an even number of participants in each group.
+
+Participants will be required to be fluent in English, so that they will understand the instructions of the task.
 
 ### Materials
 
@@ -57,20 +62,26 @@ This was followed closely, with a few exceptions. First, I used a text-to-speech
 I have separate task versions set up for each condition, with counterbalancing of the labels and categories set up for each of them through Pavlovia.
 
 Auditory Label: https://run.pavlovia.org/ckaicher/lupyan_replication_1
+
 Written Label: https://run.pavlovia.org/ckaicher/lupyan_replication_2
+
 Location: https://run.pavlovia.org/ckaicher/lupyan_replication_3
+
 No Label: https://run.pavlovia.org/ckaicher/lupyan_replication_4
 
 
 ### Analysis Plan
 
-Can also quote directly, though it is less often spelled out effectively for an analysis strategy section.  The key is to report an analysis strategy that is as close to the original - data cleaning rules, data exclusion rules, covariates, etc. - as possible.  
+Data will be cleaned and tidied such that trials will be excluded if their response time is more than 3 minutes. Participants will be excluded if they pressed the same arrow key for more than 90% of trials.
 
-**Clarify key analysis of interest here**  You can also pre-specify additional analyses you plan to do.
+The key analysis of interest is a mixed ANOVA with Condition as a between-subjects factor and Block as a within-subjects factor. I will use this to see if there is a significant Block x Condition interaction and main effect of Condition. I will also conduct planned comparisons of the conditions see whether the two label conditions differ from one another and whether the no-label and location conditions differ from one another. The authors also conducted a Condition x Block ANOVA with the pooled data from the label conditions and pooled data from the no-label and location conditions, so I will do that as well.
+
+I will also use participants' performance on the verification trials to see if their verification accuracy correlates with training accuracy, and whether an ANOVA with Condition as a between-subjects factor is significant. If the ANOVA is significant, I will follow it up with pairwaise comparisons of the conditons. These verification trial analyses will only be conducted for the auditory label, written label, and location conditions, as the no-label condition does not have verification trials.
 
 ### Differences from Original Study
 
-Explicitly describe known differences in sample, setting, procedure, and analysis plan from original study.  The goal, of course, is to minimize those differences, but differences will inevitably occur.  Also, note whether such differences are anticipated to make a difference based on claims in the original article or subsequent published research on the conditions for obtaining the effect.
+The original study was conducted in-person, with a sample of American undergraduate students between the ages of 18 and 24. This replication will be conducted online on Prolific, with adults of any age. Prolific participants can also be from countries other than America. These differences are not anticipated to affect the results of the study based on the claims of the original article. 
+
 
 ### Methods Addendum (Post Data Collection)
 
@@ -96,6 +107,8 @@ Data preparation following the analysis plan.
 #### Load Relevant Libraries and Functions
 library("tidyverse")
 library("emmeans")
+
+theme_set(theme_classic(base_size = 18))
 
 #### Import data
 input_path <- "../data/Pilot A/raw_data"
@@ -190,6 +203,36 @@ write.csv(df.dat_clean_all,
 
 The analyses as specified in the analysis plan.  
 ```{r include=T}
+acc_byBlock <- df.dat_clean_all %>% 
+  mutate(block = as.numeric(block)) %>% 
+  select(participant, trial, block, correct, condition) %>%
+  group_by(participant,
+           condition,
+           block) %>%
+  summarise_at(.vars = "correct",
+               .funs = mean) %>% 
+  ggplot(mapping = aes(x = block,
+                       y = correct,
+                       color = condition)) +
+  stat_summary(fun.data = "mean_cl_boot",
+               position = position_dodge(0.2)) +
+  stat_summary(fun = mean, geom="line",
+               position = position_dodge(0.2)) +
+  scale_x_continuous(name = "Block",
+                     breaks = c(1:9)) +
+  coord_cartesian(ylim = c(0.0, 1.0)) +
+  labs(y = "Proportion Correct") +
+  theme(axis.text=element_text(size=20),
+        axis.title=element_text(size=24),
+        legend.text = element_text(size=20)) +
+  scale_colour_brewer(palette = "Set1",
+                      name = "",
+                      labels = c("No Label", "Location", "Written Label", "Auditory Label"))
+
+ggsave(filename = "/Users/ckaicher/Desktop/PhD/Fall 2025/Replication Project/cat_acc_byBlock.png",
+       plot = acc_byBlock,
+       width = 10)
+
 acc.lm <- glm(correct ~ condition * block,
               data = df.dat_clean_all)
 
