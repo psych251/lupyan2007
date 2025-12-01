@@ -32,15 +32,15 @@ Original Paper: https://github.com/psych251/lupyan2007/blob/main/original_paper/
 
 ### Power Analysis
 
-The authors reported a partial eta-squared effect size of 0.07 for the interaction between condition and block. This roughly translates to a partial cohen's f of 0.87. This is a very large effect size. 
+The authors reported a partial eta-squared effect size of 0.07 for the interaction between condition and block. This roughly translates to a partial cohen's f of 0.87. Looking at the non-partial effect sizes, they are an eta-squared of about 0.066 and cohen's f of about 0.264, indicating a medium effect size for the key analysis of interest.
 
-Original effect size, power analysis for samples to achieve 80%, 90%, 95% power to detect that effect size.  Considerations of feasibility for selecting planned sample size.
+Using G*Power, a power analysis for this effect size from a mixed ANOVA was conducted. The power analysis indicates that a sample of 24 participants is needed to achieve 80% power, 28 participants are needed to achieve 90% power, and 32 participants are needed to achieve 95% power.
 
 ### Planned Sample
 
-I plan to stop collecting data once I have 76 participants, 19 in each condition. The original study had 75 participants, and I adjusted it to 76 to have an even number of participants in each group.
+I plan to stop collecting data once I have 76 participants, 19 in each condition. Even though adequate power can be achieved with fewer participants, I decided to match the original study's sample size. The original study had 75 participants, and I adjusted it to 76 to have an even number of participants in each group.
 
-Participants will be required to be fluent in English, so that they will understand the instructions of the task.
+Participants will be required to be fluent in English, so that they will understand the instructions of the task. I will also limit the sample to be participants from the United States, since the original sample were college students living in the US.
 
 ### Materials
 
@@ -74,13 +74,13 @@ No Label: https://run.pavlovia.org/ckaicher/lupyan_replication_4
 
 Data will be cleaned and tidied such that trials will be excluded if their response time is more than 3 minutes. Participants will be excluded if they pressed the same arrow key for more than 90% of trials.
 
-The key analysis of interest is a mixed ANOVA with Condition as a between-subjects factor and Block as a within-subjects factor. I will use this to see if there is a significant Block x Condition interaction and main effect of Condition. I will also conduct planned comparisons of the conditions see whether the two label conditions differ from one another and whether the no-label and location conditions differ from one another. The authors also conducted a Condition x Block ANOVA with the pooled data from the label conditions and pooled data from the no-label and location conditions, so I will do that as well.
+The key analysis of interest is a mixed ANOVA with Condition as a between-subjects factor and Block as a within-subjects factor. I will use this to see if there is a significant Block x Condition interaction and main effect of Condition. Just as the authors did, I will also conduct planned comparisons of the conditions see whether the two label conditions differ from one another and whether the no-label and location conditions differ from one another. The authors also conducted 2 more ANOVAs that I will do as well: 1) a Condition x Block ANOVA with the pooled data from the label conditions and pooled data from the no-label and location conditions, and 2) a Condition x Block ANOVA of just the written-label and location conditions.
 
-I will also use participants' performance on the verification trials to see if their verification accuracy correlates with training accuracy, and whether an ANOVA with Condition as a between-subjects factor is significant. If the ANOVA is significant, I will follow it up with pairwaise comparisons of the conditons. These verification trial analyses will only be conducted for the auditory label, written label, and location conditions, as the no-label condition does not have verification trials.
+I will also use participants' performance on the verification trials to see if their verification accuracy correlates with training accuracy, and whether an ANOVA with Condition as a between-subjects factor is significant. If the ANOVA is significant, I will follow it up with pairwise comparisons of the conditions. These verification trial analyses will only be conducted for the auditory label, written label, and location conditions, as the no-label condition does not have verification trials.
 
 ### Differences from Original Study
 
-The original study was conducted in-person, with a sample of American undergraduate students between the ages of 18 and 24. This replication will be conducted online on Prolific, with adults of any age. Prolific participants can also be from countries other than America. These differences are not anticipated to affect the results of the study based on the claims of the original article. 
+The original study was conducted in-person, with a sample of American undergraduate students between the ages of 18 and 24. This replication will be conducted online on Prolific, with adults of any age. These differences are not anticipated to affect the results of the study based on the claims of the original article. 
 
 
 ### Methods Addendum (Post Data Collection)
@@ -111,8 +111,8 @@ library("emmeans")
 theme_set(theme_classic(base_size = 18))
 
 #### Import data
-input_path <- "../data/Pilot A/raw_data"
-output_path <- "../data/Pilot A/processed_data"
+input_path <- "../data/Pilot B/raw_data"
+output_path <- "../data/Pilot B/processed_data"
 
 files <- list.files(path=input_path,
                     pattern=".csv",
@@ -120,7 +120,7 @@ files <- list.files(path=input_path,
                     full.names=FALSE)
 
 #this is for making the condition names more concise during tidying
-condition_names <- tibble(experimentName = c("Category_Training_Label",
+condition_names <- tibble(experimentName = c("Category_Training_LabelAuditory",
                                       "Category_Training_LabelWritten",
                                       "Category_Training_Location",
                                       "Category_Training_NoLabel"),
@@ -131,44 +131,47 @@ condition_names <- tibble(experimentName = c("Category_Training_Label",
 
 #### Data exclusion / filtering
 
-clean_data = function(dat) {
+clean_data = function(dat, index) {
   dat_clean <- dat %>% 
-    rename(participant = "Prolific ID") %>% 
-    mutate(counterbalance.group = counterbalance.group[1]) %>% 
+    mutate(participant = index) %>% 
+    mutate(counterbalance_group = counterbalance_group[1]) %>% 
     select(participant,
-           counterbalance.group,
-           expName,
-           #block,
+           counterbalance_group,
+           exp_name,
+           block,
            alien_stim,
            category,
            friendly,
            approach,
-           key_resp.actual,
-           correct) %>% 
+           key_resp_actual,
+           correct,
+           trial_started,
+           trial_stopped) %>% 
     drop_na(alien_stim) %>% 
     mutate(trial = 1:144) %>%
+    filter(trial_stopped - trial_started <= 180) %>% #remove trial if more than 3 minutes long
     mutate(condition = filter(condition_names,
-                              expName[1] == experimentName)$condition)
-  
-  #during piloting, I realized the output files did not include the block number of each trial, so I am adding that info here -- however, I will fix that for the next pilot
-  
-  dat_clean <- mutate(dat_clean, block = c(rep(1, 16),
-                                           rep(2, 16),
-                                           rep(3, 16),
-                                           rep(4, 16),
-                                           rep(5, 16),
-                                           rep(6, 16),
-                                           rep(7, 16),
-                                           rep(8, 16),
-                                           rep(9, 16)))
+                              dat$exp_name[1] == experimentName)$condition)
   
   return (dat_clean)
+}
+
+#to check whether participant pressed the same button for over 90% of trials
+check_responses = function(dat) {
+  if (nrow(filter(dat, key_resp_actual == "[\"up\"]"))/144 > 0.9|
+      nrow(filter(dat, key_resp_actual == "[\"down\"]"))/144 > 0.9|
+      nrow(filter(dat, key_resp_actual == "[\"right\"]"))/144 > 0.9|
+      nrow(filter(dat, key_resp_actual == "[\"left\"]"))/144 > 0.9) {
+    return (FALSE)
+  } else {
+    return (TRUE)
+  }
 }
 
 #### Prepare data for analysis - create columns etc.
 
 df.dat_clean_all <- tibble(participant = c(),
-                           #block = c(),
+                           block = c(),
                            condition = c(),
                            counterbalance.group = c(),
                            alien_stim = c(),
@@ -180,11 +183,15 @@ df.dat_clean_all <- tibble(participant = c(),
 
 for (i in 1:length(files)) {
   df.dat <- read_csv(paste0(input_path, "/", files[i]))
-  df.dat_clean <- clean_data(df.dat)
-  write.csv(df.dat_clean,
-            paste0(output_path, "/", files[i], "_processed.csv"),
-            row.names = FALSE)
-  df.dat_clean_all <- rbind(df.dat_clean, df.dat_clean_all)
+  df.dat_clean <- clean_data(df.dat, i)
+  if (check_responses(df.dat_clean)) {
+    write.csv(df.dat_clean,
+              paste0(output_path, "/", files[i], "_processed.csv"),
+              row.names = FALSE)
+    df.dat_clean_all <- rbind(df.dat_clean, df.dat_clean_all)
+  } else {
+    print("participant excluded for pressing the same button for over 90% of trials")
+  }
 }
 
 df.dat_clean_all$condition <- factor(df.dat_clean_all$condition,
@@ -197,9 +204,17 @@ write.csv(df.dat_clean_all,
           paste0(output_path, "/all_participants.csv"),
           row.names = FALSE)
 
+df.dat_clean_all_summary <- df.dat_clean_all %>% 
+  group_by(participant,
+           condition,
+           block) %>% 
+  summarize(mean_correct = mean(correct))
+
+df.dat_clean_all_summary$block = factor(df.dat_clean_all_summary$block)
+
 ```
 
-### Confirmatory analysis
+### Confirmatory analysis (Pilot B)
 
 The analyses as specified in the analysis plan.  
 ```{r include=T}
@@ -233,13 +248,17 @@ ggsave(filename = "/Users/ckaicher/Desktop/PhD/Fall 2025/Replication Project/cat
        plot = acc_byBlock,
        width = 10)
 
-acc.lm <- glm(correct ~ condition * block,
-              data = df.dat_clean_all)
+acc_byBlock
+
+#key analysis of interest -- mixed ANOVA with Condition as a between-subjects factor and Block as a within-subjects factor, and follow-up comparisons
+acc.lm <- glm(mean_correct ~ condition * block,
+              data = df.dat_clean_all_summary)
 
 acc.av <- acc.lm %>% 
   joint_tests()
 acc.av
 
+#planned comparisons to see whether the two label conditions differ from one another and whether the no-label and location conditions differ from one another
 emm <- emmeans(acc.lm,
                specs = ~ condition)
 
@@ -250,16 +269,16 @@ contrast_results <- contrast(emm,
 
 summary(contrast_results)
 
-#not really sure why the authors did these next two analyses
-
 #comparing pooled Auditory Label and Written Label data to pooled Location and No Label data in new anova
-df.pooled <- df.dat_clean_all %>% 
-  mutate(condition = ifelse(test = (df.dat_clean_all$condition == "Label_Auditory"|
-                                      df.dat_clean_all$condition == "Label_Written"),
-                            yes = "labels_pooled",
-                            no = "nonLabels_pooled"))
+df.pooled <- df.dat_clean_all_summary %>% 
+  mutate(condition = case_when(
+      condition == "Label_Auditory" ~ "labels_pooled",
+      condition == "Label_Written" ~ "labels_pooled",
+      condition == "Location" ~ "nonLabels_pooled",
+      condition == "No_Label" ~ "nonLabels_pooled",
+      .default = NA))
 
-acc.lm_pooled <- glm(correct ~ condition * block,
+acc.lm_pooled <- glm(mean_correct ~ condition * block,
                                  data = df.pooled)
 
 acc.av_pooled <- acc.lm_pooled %>%
@@ -267,15 +286,22 @@ acc.av_pooled <- acc.lm_pooled %>%
 acc.av_pooled
 
 #comparing just Written Label and Location conditions in new anova
-df.justWrittenAndLocation <- df.dat_clean_all %>% 
+df.justWrittenAndLocation <- df.dat_clean_all_summary %>% 
   filter(condition == "Label_Written" | condition == "Location")
 
-acc.lm_WrittenAndLocation <- glm(correct ~ condition * block,
+acc.lm_WrittenAndLocation <- glm(mean_correct ~ condition * block,
                                  data = df.justWrittenAndLocation)
 
 acc.av_WrittenAndLocation <- acc.lm_WrittenAndLocation %>%
   joint_tests()
 acc.av_WrittenAndLocation
+
+####verification accuracy analyses####
+#I realized my experiment output was not correctly storing the accuracy of the verification trials, so I do not have the analyses here (they are not key analyses). However, I have fixed the issue since collecting my pilot B data, so I will be able to implement the analysis with my full set of data.
+
+#see if verification accuracy correlates with training accuracy
+
+#check for differences in verification accuracy across conditions. If the ANOVA is significant, I will follow it up with pairwise comparisons of the conditions.
 
 ```
 
