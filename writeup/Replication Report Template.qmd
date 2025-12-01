@@ -186,7 +186,7 @@ for (i in 1:length(files)) {
   df.dat_clean <- clean_data(df.dat, i)
   if (check_responses(df.dat_clean)) {
     write.csv(df.dat_clean,
-              paste0(output_path, "/", files[i], "_processed.csv"),
+              paste0(output_path, "/", sub("\\-anon.csv$", "", files[i]), "_processed-anon.csv"),
               row.names = FALSE)
     df.dat_clean_all <- rbind(df.dat_clean, df.dat_clean_all)
   } else {
