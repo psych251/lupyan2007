@@ -83,15 +83,15 @@ I will also use participants' performance on the verification trials to see if t
 The original study was conducted in-person, with a sample of American undergraduate students between the ages of 18 and 24. This replication will be conducted online on Prolific, with adults of any age. These differences are not anticipated to affect the results of the study based on the claims of the original article. 
 
 
-### Methods Addendum (Post Data Collection)
+<!-- ### Methods Addendum (Post Data Collection) -->
 
-You can comment this section out prior to final report with data collection.
+<!-- You can comment this section out prior to final report with data collection. -->
 
-#### Actual Sample
-  Sample size, demographics, data exclusions based on rules spelled out in analysis plan
+<!-- #### Actual Sample -->
+<!--   Sample size, demographics, data exclusions based on rules spelled out in analysis plan -->
 
-#### Differences from pre-data collection methods plan
-  Any differences from what was described as the original plan, or “none”.
+<!-- #### Differences from pre-data collection methods plan -->
+<!--   Any differences from what was described as the original plan, or “none”. -->
 
 
 ## Results
@@ -305,18 +305,18 @@ acc.av_WrittenAndLocation
 
 ```
 
-*Side-by-side graph with original graph is ideal here*
+<!-- *Side-by-side graph with original graph is ideal here* -->
 
-### Exploratory analyses
+<!-- ### Exploratory analyses -->
 
-Any follow-up analyses desired (not required).  
+<!-- Any follow-up analyses desired (not required).   -->
 
-## Discussion
+<!-- ## Discussion -->
 
-### Summary of Replication Attempt
+<!-- ### Summary of Replication Attempt -->
 
-Open the discussion section with a paragraph summarizing the primary result from the confirmatory analysis and the assessment of whether it replicated, partially replicated, or failed to replicate the original result.  
+<!-- Open the discussion section with a paragraph summarizing the primary result from the confirmatory analysis and the assessment of whether it replicated, partially replicated, or failed to replicate the original result.   -->
 
-### Commentary
+<!-- ### Commentary -->
 
-Add open-ended commentary (if any) reflecting (a) insights from follow-up exploratory analysis, (b) assessment of the meaning of the replication (or not) - e.g., for a failure to replicate, are the differences between original and present study ones that definitely, plausibly, or are unlikely to have been moderators of the result, and (c) discussion of any objections or challenges raised by the current and original authors about the replication attempt.  None of these need to be long.
+<!-- Add open-ended commentary (if any) reflecting (a) insights from follow-up exploratory analysis, (b) assessment of the meaning of the replication (or not) - e.g., for a failure to replicate, are the differences between original and present study ones that definitely, plausibly, or are unlikely to have been moderators of the result, and (c) discussion of any objections or challenges raised by the current and original authors about the replication attempt.  None of these need to be long. -->
